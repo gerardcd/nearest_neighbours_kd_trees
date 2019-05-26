@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class File:
     def __init__(self, data):
         self.data = np.array(data)
@@ -18,7 +19,3 @@ class File:
 
     def __str__(self):
         return str(self.data)
-
-
-def random_file(n, k):
-    return File(np.random.rand(n, k))

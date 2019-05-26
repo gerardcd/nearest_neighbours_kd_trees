@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 b = 10
 
@@ -11,8 +12,21 @@ class Node:
         self.right = right
 
     def __str__(self):
-       return str(self.left) + ' + ' + str(self.right)
+        return str(self.left) + ' + ' + str(self.right)
 
+    def plot(self, x_l=0, x_u=1, y_l=0, y_u=1):
+
+        if self.d == 0:
+            plt.plot([self.p, self.p], [y_l, y_u], 'b--')
+
+            self.left.plot(x_l, self.p, y_l, y_u)
+            self.right.plot(self.p, x_u, y_l, y_u)
+
+        else:
+            plt.plot([x_l, x_u], [self.p, self.p], 'b--')
+
+            self.left.plot(x_l, x_u, y_l, self.p)
+            self.right.plot(x_l, x_u, self.p, y_u)
 
 class Leaf:
     def __init__(self, file):
@@ -21,6 +35,8 @@ class Leaf:
     def __str__(self):
         return str(self.file)
 
+    def plot(self, x_l, x_u, y_l, y_u):
+        plt.plot(self.file.data.T[0], self.file.data.T[1], 'ro')
 
 def build_tree(file):
     if len(file.data) <= b:

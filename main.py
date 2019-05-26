@@ -1,18 +1,22 @@
 import math
 
 import numpy as np
-import heapq
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 
 from tree import build_tree, Leaf
-from file import File, random_file
+from file import File
 
-N = 3
+N = 100
 k = 2
-m = 2
+m = 5
 
 # Build the Data File and store it in a new kd-tree
-F = File([[0,0], [1,1], [0,3]])
+data = np.random.rand(N, k)
+
+F = File(data)
 tree = build_tree(F)
+tree.plot()
 
 class Done(Exception):
     pass
@@ -20,13 +24,16 @@ class Done(Exception):
 
 # Global variables
 
-Xq = [0,2]                                          # Query record
+Xq = np.random.rand(2)                                      # Query record
 PQD = [math.inf for _ in range(m)]                  # Priority queue of the m closest distances encountered at any phase of the search
 PQR = [None for _ in range(m)]                      # Priority queue of the record numbers of the corresponding m best matches encountered at any phase of the search
 Bu = [math.inf for _ in range(k)]                   # Coordinate upper bounds
 Bl = [-math.inf for _ in range(k)]                  # Coordinate lower bounds
 
-# Search method
+plt.plot(Xq[0], Xq[1], 'bo')
+plt.show()
+
+
 def search(node):
     if isinstance(node, Leaf):
         search_in_leaf(node)
@@ -63,6 +70,7 @@ def search(node):
     else:
         return
 
+
 def search_in_leaf(node):
     data = node.file.data
 
@@ -81,8 +89,8 @@ def search_in_leaf(node):
                 PQR[i-1] = PQR[i]
 
             i += 1
-
         i -= 1
+
         if i >= 0:
             PQD[i] = distance
             PQR[i] = x
@@ -90,29 +98,32 @@ def search_in_leaf(node):
 
 def ball_within_bounds():
     for d in range(k):
-        if coordinate_distance(d, Xq[d], Bl[d]) <= PQD[1] or coordinate_distance(d, Xq[d], Bl[d]) <= PQD[1]:
+        if coordinate_distance(d, Xq[d], Bl[d]) <= PQD[0] or coordinate_distance(d, Xq[d], Bu[d]) <= PQD[0]:
             return False
 
     return True
 
 
 def bounds_overlap_ball():
+    print_status()
+
     sum = 0
     for d in range(k):
 
         # Lower than low boundary
         if Xq[d] < Bl[d]:
             sum += coordinate_distance(d, Xq[d], Bl[d])
-            if dissim(sum) > PQD[1]:
+            if dissim(sum) < PQD[0]:
                 return True
 
         # Higher than high boundary
         elif Xq[d] > Bu[d]:
             sum += coordinate_distance(d, Xq[d], Bu[d])
-            if dissim(sum) > PQD[1]:
+            if dissim(sum) < PQD[0]:
                 return True
 
     return False
+
 
 def coordinate_distance(d, x_d, y_d):
     return math.fabs(x_d - y_d) ** 2
@@ -121,8 +132,36 @@ def coordinate_distance(d, x_d, y_d):
 def dissim(x):
     return x ** (1/2)
 
+
+def print_status():
+    np_PQR = np.array([PQR[i] for i in range(m) if PQR[i] is not None])
+
+    fig, ax = plt.subplots(1)
+
+    x_l = min(max(Bl[0], 0), 1)
+    x_u = min(max(Bu[0], 0), 1)
+
+    y_l = min(max(Bl[1], 0), 1)
+    y_u = min(max(Bu[1], 0), 1)
+
+    rect = patches.Rectangle((x_l, y_l), x_u - x_l, y_u - y_l, linewidth=1, edgecolor='y', facecolor='none')
+
+    circle = plt.Circle((Xq[0], Xq[1]), PQD[0], color='b', fill=False)
+
+    tree.plot()
+    plt.plot(Xq[0], Xq[1], 'bo')
+    plt.plot(np_PQR.T[0], np_PQR.T[1], 'go')
+
+    ax.add_patch(rect)
+    ax.add_artist(circle)
+
+    plt.show()
+
+
 try:
     search(tree)
 except Done as d:
     print('Done')
-    print(PQR)
+
+    print_status()
+
