@@ -1,4 +1,5 @@
 import math
+import time
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -9,7 +10,7 @@ from file import File
 
 N = 100
 k = 2
-m = 5
+m = 10
 
 # Build the Data File and store it in a new kd-tree
 data = np.random.rand(N, k)
@@ -35,6 +36,8 @@ plt.show()
 
 
 def search(node):
+    print_status()
+
     if isinstance(node, Leaf):
         search_in_leaf(node)
         if ball_within_bounds():
@@ -105,8 +108,6 @@ def ball_within_bounds():
 
 
 def bounds_overlap_ball():
-    print_status()
-
     sum = 0
     for d in range(k):
 
@@ -144,19 +145,22 @@ def print_status():
     y_l = min(max(Bl[1], 0), 1)
     y_u = min(max(Bu[1], 0), 1)
 
-    rect = patches.Rectangle((x_l, y_l), x_u - x_l, y_u - y_l, linewidth=1, edgecolor='y', facecolor='none')
+    rect = patches.Rectangle((x_l, y_l), x_u - x_l, y_u - y_l, linewidth=1, edgecolor='r', facecolor='none')
 
     circle = plt.Circle((Xq[0], Xq[1]), PQD[0], color='b', fill=False)
 
     tree.plot()
     plt.plot(Xq[0], Xq[1], 'bo')
-    plt.plot(np_PQR.T[0], np_PQR.T[1], 'go')
+
+    if len(np_PQR) > 0:
+        plt.plot(np_PQR.T[0], np_PQR.T[1], 'go')
 
     ax.add_patch(rect)
     ax.add_artist(circle)
 
     plt.show()
 
+    time.sleep(0.5)
 
 try:
     search(tree)

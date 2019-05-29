@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-b = 10
+b = 5
 
 
 class Node:
@@ -36,7 +36,7 @@ class Leaf:
         return str(self.file)
 
     def plot(self, x_l, x_u, y_l, y_u):
-        plt.plot(self.file.data.T[0], self.file.data.T[1], 'ro')
+        plt.plot(self.file.data.T[0], self.file.data.T[1], 'yo')
 
 def build_tree(file):
     if len(file.data) <= b:
