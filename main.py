@@ -1,5 +1,6 @@
 import math
 import time
+import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,35 +9,38 @@ import matplotlib.patches as patches
 from tree import build_tree, Leaf
 from file import File
 
-N = 100
-k = 2
+N = int(sys.argv[1])
+k = 10
 m = 10
 
 # Build the Data File and store it in a new kd-tree
-data = np.random.rand(N, k)
+data = np.random.normal(0.5, 0.1, (N, k)) # Normal distribution
+#data = np.random.rand(N, k)    # Uniform distribution
 
 F = File(data)
 tree = build_tree(F)
-tree.plot()
-
-class Done(Exception):
-    pass
 
 
 # Global variables
 
-Xq = np.random.rand(2)                                      # Query record
+Xq = np.random.rand(k)                              # Query record
 PQD = [math.inf for _ in range(m)]                  # Priority queue of the m closest distances encountered at any phase of the search
 PQR = [None for _ in range(m)]                      # Priority queue of the record numbers of the corresponding m best matches encountered at any phase of the search
 Bu = [math.inf for _ in range(k)]                   # Coordinate upper bounds
 Bl = [-math.inf for _ in range(k)]                  # Coordinate lower bounds
 
-plt.plot(Xq[0], Xq[1], 'bo')
-plt.show()
+# Only works for the k == 2 case
+if k == 2:
+    tree.plot()
+    plt.plot(Xq[0], Xq[1], 'bo')
+    plt.show()
+
+class Done(Exception):
+    pass
 
 
 def search(node):
-    print_status()
+    #print_status()
 
     if isinstance(node, Leaf):
         search_in_leaf(node)
@@ -135,6 +139,10 @@ def dissim(x):
 
 
 def print_status():
+    # Only works for the k == 2 case
+    if k != 2:
+        return
+
     np_PQR = np.array([PQR[i] for i in range(m) if PQR[i] is not None])
 
     fig, ax = plt.subplots(1)
@@ -162,10 +170,14 @@ def print_status():
 
     time.sleep(0.5)
 
+start = time.time()
 try:
     search(tree)
 except Done as d:
     print('Done')
-
-    print_status()
+    end = time.time()
+    elapsed = end - start
+    print(str(elapsed) + " s")
+    #print(PQR)
+    #print_status()
 
