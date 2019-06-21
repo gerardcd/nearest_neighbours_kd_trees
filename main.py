@@ -40,7 +40,7 @@ class Done(Exception):
 
 
 def search(node):
-    #print_status()
+    print_status()
 
     if isinstance(node, Leaf):
         search_in_leaf(node)
@@ -178,6 +178,6 @@ except Done as d:
     end = time.time()
     elapsed = end - start
     print(str(elapsed) + " s")
-    #print(PQR)
-    #print_status()
+    print(PQR)
+    print_status()
 
